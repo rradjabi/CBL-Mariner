@@ -67,7 +67,7 @@ mv -f RELNOTES.tmp RELNOTES.old
 %caps(cap_net_raw=p cap_net_admin=p) %{_bindir}/ping6
 
 %changelog
-*   Wed Jul 29 2020 Andrew Phelps 20180629-5
+*   Wed Jul 29 2020 Andrew Phelps <anphel@microsoft.com> 20180629-5
 -   Add ping6 symlink.
 *   Sat May 09 2020 Nick Samson <nisamson@microsoft.com> 20180629-4
 -   Added %%license line automatically
