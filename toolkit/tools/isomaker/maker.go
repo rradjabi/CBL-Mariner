@@ -304,14 +304,48 @@ func (im *IsoMaker) copyAndRenameConfigFiles() {
 func (im *IsoMaker) copyAndRenameAdditionalFiles(configFilesAbsDirPath string) {
 	const additionalFilesSubDirName = "additionalfiles"
 
-	for _, systemConfig := range im.config.SystemConfigs {
-		for localAbsFilePath, installedSystemAbsFilePath := range systemConfig.AdditionalFiles {
-			delete(systemConfig.AdditionalFiles, localAbsFilePath)
-			isoRelativeFilePath := im.copyFileToConfigRoot(configFilesAbsDirPath, additionalFilesSubDirName, localAbsFilePath)
+	test_array := []string{}
 
-			systemConfig.AdditionalFiles[isoRelativeFilePath] = installedSystemAbsFilePath
-		}
+	j := 0
+	for localFilePath, _ := range im.config.SystemConfigs[0].AdditionalFiles {
+		// logger.Log.Warnf("*** LocalFilePath: %s. InstalledFilePath: %s", localFilePath, installedFilePath)
+		logger.Log.Warnf("J = %v", j)
+		isoRelativeFilePath := im.copyFileToConfigRoot(configFilesAbsDirPath, additionalFilesSubDirName, localFilePath)
+		test_array = append(test_array, isoRelativeFilePath)
+		j = j + 1
 	}
+
+	i := 0
+	for lFilePath, iFilePath := range im.config.SystemConfigs[0].AdditionalFiles {
+		logger.Log.Warnf("i = %v", i)
+		if i == 12 {
+			break
+		}
+		delete(im.config.SystemConfigs[0].AdditionalFiles, lFilePath)
+		im.config.SystemConfigs[0].AdditionalFiles[test_array[i]] = iFilePath
+		i = i + 1
+	}
+
+	/*
+		for localAbsFilePath, installedSystemAbsFilePath := range im.config.SystemConfigs[0].AdditionalFiles {
+			logger.Log.Warnf("******* LocalFilePath: %s. InstalledFilePath: %s", localAbsFilePath, installedSystemAbsFilePath)
+			isoRelativeFilePath := im.copyFileToConfigRoot(configFilesAbsDirPath, additionalFilesSubDirName, localAbsFilePath)
+			delete(im.config.SystemConfigs[0].AdditionalFiles, localAbsFilePath)
+
+			im.config.SystemConfigs[0].AdditionalFiles[isoRelativeFilePath] = installedSystemAbsFilePath
+		}
+	*/
+	/*
+		for _, systemConfig := range im.config.SystemConfigs {
+			for localAbsFilePath, installedSystemAbsFilePath := range systemConfig.AdditionalFiles {
+				logger.Log.Warnf("NIONTIVE: %s", localAbsFilePath)
+			    delete(systemConfig.AdditionalFiles, localAbsFilePath)
+				isoRelativeFilePath := im.copyFileToConfigRoot(configFilesAbsDirPath, additionalFilesSubDirName, localAbsFilePath)
+
+				systemConfig.AdditionalFiles[isoRelativeFilePath] = installedSystemAbsFilePath
+			}
+		}
+	*/
 }
 
 // copyAndRenamePackagesJSONs will copy all package list JSONs into an
@@ -383,6 +417,7 @@ func (im *IsoMaker) saveConfigJSON(configFilesAbsDirPath string) {
 // copyFileToConfigRoot copies a single file to its own, numbered subdirectory to avoid name conflicts
 // and returns the realitve path to the file for the sake of config updates for the installer.
 func (im *IsoMaker) copyFileToConfigRoot(configFilesAbsDirPath, configFilesSubDirName, localAbsFilePath string) string {
+	// logger.Log.Warnf("LocalAbsFilePath: %s", localAbsFilePath)
 	fileName := filepath.Base(localAbsFilePath)
 	configFileSubDirRelativePath := fmt.Sprintf("%s/%d", configFilesSubDirName, im.configSubDirNumber)
 	configFileSubDirAbsPath := filepath.Join(configFilesAbsDirPath, configFileSubDirRelativePath)
@@ -392,7 +427,7 @@ func (im *IsoMaker) copyFileToConfigRoot(configFilesAbsDirPath, configFilesSubDi
 	isoRelativeFilePath := filepath.Join(configFileSubDirRelativePath, fileName)
 	isoAbsFilePath := filepath.Join(configFilesAbsDirPath, isoRelativeFilePath)
 
-	logger.Log.Tracef("Copying file to ISO's config root '%s' from '%s'.", isoAbsFilePath, localAbsFilePath)
+	// logger.Log.Infof("Copying file to ISO's config root '%s' from '%s'.", isoAbsFilePath, localAbsFilePath)
 
 	logger.PanicOnError(file.Copy(localAbsFilePath, isoAbsFilePath), "Failed to copy file to ISO's config root '%s' from '%s'.", isoAbsFilePath, localAbsFilePath)
 
